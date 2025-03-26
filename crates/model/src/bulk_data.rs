@@ -19,8 +19,12 @@ impl UserAddr {
         UserAddr(sample)
     }
 
-    fn as_bytes(&self) -> &[u8] {
-        self.0.as_bytes()
+    pub fn serialize_csv<W>(&self, writer: &mut csv::Writer<W>) -> anyhow::Result<()>
+    where
+        W: std::io::Write,
+    {
+        writer.write_field(self.0.as_bytes())?;
+        Ok(())
     }
 }
 
@@ -35,15 +39,12 @@ impl Timestamp {
         Timestamp(rng.random_range(0..Self::BOUNDARY))
     }
 
-    fn as_bytes(&self) -> &[u8] {
-        let value = &self.0;
-        let ptr = value as *const u64 as *const u8;
-        let len = std::mem::size_of::<u64>();
-        unsafe {
-            // SAFETY
-            // This is the reference to `u64` value. Everything is good.
-            std::slice::from_raw_parts(ptr, len)
-        }
+    pub fn serialize_csv<W>(&self, writer: &mut csv::Writer<W>) -> anyhow::Result<()>
+    where
+        W: std::io::Write,
+    {
+        writer.write_field(self.0.to_string().as_str())?;
+        Ok(())
     }
 }
 
@@ -59,8 +60,12 @@ impl TransactionId {
         TransactionId(sample)
     }
 
-    fn as_bytes(&self) -> &[u8] {
-        self.0.as_bytes()
+    pub fn serialize_csv<W>(&self, writer: &mut csv::Writer<W>) -> anyhow::Result<()>
+    where
+        W: std::io::Write,
+    {
+        writer.write_field(self.0.as_bytes())?;
+        Ok(())
     }
 }
 
@@ -72,9 +77,9 @@ impl Transaction {
     where
         W: std::io::Write,
     {
-        writer.write_field(self.0.as_bytes())?;
-        writer.write_field(self.1.as_bytes())?;
-        writer.write_field(self.2.as_bytes())?;
+        self.0.serialize_csv(writer)?;
+        self.1.serialize_csv(writer)?;
+        self.2.serialize_csv(writer)?;
         writer.write_record(None::<&[u8]>)?;
         Ok(())
     }
