@@ -29,9 +29,10 @@ where
     B: Backend<Input = InsertBulkInput>,
 {
     let mut group = c.benchmark_group(BENCH_GROUP_NAME);
-    for (i, file_path) in list_data_files().unwrap().enumerate() {
-        // group.throughput(criterion::Throughput::Elements(items_count));
-        group.bench_function(criterion::BenchmarkId::new(BENCH_NAME, i), |b| {
+    for (quality, file_path) in list_data_files().unwrap() {
+        group.throughput(criterion::Throughput::Elements(quality));
+        let bench_id = criterion::BenchmarkId::new(BENCH_NAME, quality);
+        group.bench_function(bench_id, move |b| {
             let bench_input = InsertBulkInput {
                 file_path: file_path.clone(),
             };
