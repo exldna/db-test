@@ -1,0 +1,37 @@
+[package]
+name = "db-test-compare"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+bench = false
+
+[dependencies]
+hack.workspace = true
+db-test-model.workspace = true
+
+anyhow.workspace = true
+const_format.workspace = true
+
+futures-util = "0.3.31"
+tokio-util = "0.7.14"
+
+[dependencies.tokio]
+version = "1.44.1"
+default-features = false
+features = ["rt-multi-thread"]
+
+[dependencies.bollard]
+version = "0.18.1"
+default-features = false
+features = ["buildkit", "pipe"]
+
+[dependencies.sqlx]
+version = "0.8"
+default-features = false
+features = ["runtime-tokio", "macros", "migrate", "postgres"]
+
+[dev-dependencies.tokio]
+version = "1.44.1"
+default-features = false
+features = ["rt-multi-thread", "macros"]
