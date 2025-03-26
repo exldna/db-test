@@ -31,7 +31,9 @@ pub fn list_data_files() -> anyhow::Result<impl Iterator<Item = std::path::PathB
     // IMPLEMENTATION NOTES:
     // We need to iterate over all `out_dir` entiries to catch any io errors.
     // Otherwise, we have to unwrap this values, which might be unexpected.
+    
     let out_dir = out_dir_path();
+
     let mut files = vec![];
     for entry in std::fs::read_dir(out_dir)? {
         let path = entry?.path();
@@ -39,5 +41,8 @@ pub fn list_data_files() -> anyhow::Result<impl Iterator<Item = std::path::PathB
             files.push(path);
         }
     }
+
+    files.sort();
+
     Ok(files.into_iter())
 }

@@ -53,10 +53,9 @@ where
 criterion::criterion_group! {
     name = insert_bulk;
     config = criterion::Criterion::default()
-        .sample_size(10)
-        .warm_up_time(Duration::from_secs(10))
-        .measurement_time(Duration::from_secs(60))
-        .noise_threshold(0.05);
+        .sample_size(1000)
+        .warm_up_time(Duration::from_secs(20))
+        .measurement_time(Duration::from_secs(60 * 15));
     targets =
         insert_bulk_benchmark<redis::insert_bulk::RedisInsertBulk>,
         // insert_bulk_benchmark<PostgresInsertBulk>,
