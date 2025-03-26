@@ -1,0 +1,28 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/hack",    # workspace hack
+    "crates/stand",
+    "crates/compare",
+    "crates/model",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+
+[workspace.dependencies]
+anyhow = "1.0.97"
+
+[workspace.dependencies.const_format]
+version = "0.2.34"
+features = ["fmt", "rust_1_83"]
+
+[workspace.dependencies.db-test-model]
+path = "crates/model"
+
+[workspace.dependencies.db-test-compare]
+path = "crates/compare"
+
+[workspace.dependencies.hack]
+path = "crates/hack"
