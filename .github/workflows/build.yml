@@ -24,6 +24,9 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: ViewFiles
+      run: ls -alF .
         
     - name: Build
       run: cargo build --verbose
