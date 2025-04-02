@@ -1,0 +1,21 @@
+[package]
+name = "db-test-config"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+hack.workspace = true
+
+anyhow.workspace = true
+
+[dependencies.config]
+version = "0.15.11"
+default-features = false
+features = ["toml"]
+
+[dependencies.serde]
+version = "1.0.219"
+features = ["derive"]
+
+[build-dependencies]
+anyhow.workspace = true

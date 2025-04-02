@@ -5,11 +5,24 @@ members = [
     "crates/stand",
     "crates/compare",
     "crates/model",
+    "crates/config",
 ]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
+
+[workspace.dependencies.hack]
+path = "crates/hack"
+
+[workspace.dependencies.db-test-model]
+path = "crates/model"
+
+[workspace.dependencies.db-test-config]
+path = "crates/config"
+
+[workspace.dependencies.db-test-compare]
+path = "crates/compare"
 
 [workspace.dependencies]
 anyhow = "1.0.97"
@@ -17,12 +30,3 @@ anyhow = "1.0.97"
 [workspace.dependencies.const_format]
 version = "0.2.34"
 features = ["fmt", "rust_1_83"]
-
-[workspace.dependencies.db-test-model]
-path = "crates/model"
-
-[workspace.dependencies.db-test-compare]
-path = "crates/compare"
-
-[workspace.dependencies.hack]
-path = "crates/hack"

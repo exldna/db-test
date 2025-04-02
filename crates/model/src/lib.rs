@@ -6,7 +6,7 @@ fn out_dir_path() -> Box<std::path::Path> {
     std::path::Path::new(out_dir).into()
 }
 
-pub fn generate_data(qualties: impl Iterator<Item = u64>) -> anyhow::Result<()> {
+pub fn generate_data(qualties: impl Iterator<Item = usize>) -> anyhow::Result<()> {
     let out_dir = out_dir_path();
     for quality in qualties {
         let file_name = format!("data_{}.csv", quality);
@@ -18,10 +18,10 @@ pub fn generate_data(qualties: impl Iterator<Item = u64>) -> anyhow::Result<()> 
     Ok(())
 }
 
-fn write_data_file(file: &std::fs::File, quality: u64) -> anyhow::Result<()> {
+fn write_data_file(file: &std::fs::File, quality: usize) -> anyhow::Result<()> {
     let mut csv_file = csv::Writer::from_writer(file);
     let transactions = bulk_data::BulkDataGenerator::new();
-    for transaction in transactions.take(quality as usize) {
+    for transaction in transactions.take(quality) {
         transaction.serialize_csv(&mut csv_file)?;
     }
     Ok(())

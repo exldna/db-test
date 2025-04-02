@@ -16,6 +16,8 @@ hack.workspace = true
 [dev-dependencies]
 db-test-compare.workspace = true
 db-test-model.workspace = true
+db-test-config.workspace = true
+
 const_format.workspace = true
 
 [dev-dependencies.criterion]
@@ -24,4 +26,6 @@ features = ["html_reports", "async_tokio"]
 
 [build-dependencies]
 db-test-model.workspace = true
+db-test-config.workspace = true
+
 anyhow.workspace = true

@@ -1,0 +1,7 @@
+[data]
+range = { start = 100, end = 1_000 }
+step = 100
+
+[bench.insert_bulk]
+sample-size = 10
+warm-up-time = 5

@@ -24,6 +24,7 @@ form_urlencoded = { version = "1" }
 futures-channel = { version = "0.3", features = ["sink"] }
 futures-sink = { version = "0.3" }
 futures-util = { version = "0.3", features = ["io", "sink"] }
+hashbrown = { version = "0.15" }
 memchr = { version = "2" }
 num-rational = { version = "0.4", features = ["num-bigint-std"] }
 num-traits = { version = "0.2", features = ["i128"] }
@@ -46,15 +47,19 @@ form_urlencoded = { version = "1" }
 futures-channel = { version = "0.3", features = ["sink"] }
 futures-sink = { version = "0.3" }
 futures-util = { version = "0.3", features = ["io", "sink"] }
+hashbrown = { version = "0.15" }
 memchr = { version = "2" }
 num-rational = { version = "0.4", features = ["num-bigint-std"] }
 num-traits = { version = "0.2", features = ["i128"] }
+proc-macro2 = { version = "1" }
+quote = { version = "1" }
 rand = { version = "0.8", features = ["small_rng"] }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
 sha2 = { version = "0.10" }
 smallvec = { version = "1", default-features = false, features = ["const_new", "serde"] }
 sqlx-core = { version = "0.8", features = ["_rt-tokio", "any", "json", "migrate", "offline"] }
 sqlx-postgres = { version = "0.8", default-features = false, features = ["migrate", "offline"] }
+syn = { version = "2", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
 tokio = { version = "1", features = ["fs", "io-std", "io-util", "macros", "net", "rt-multi-thread", "sync", "time"] }
 tokio-stream = { version = "0.1", features = ["fs", "net"] }
 
