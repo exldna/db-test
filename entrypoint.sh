@@ -12,5 +12,5 @@ echo 3 | sudo tee /proc/sys/vm/drop_caches
 
 for i in $(seq 1 $TRIES)
 do
-    "./${SYSTEM}/${BENCHMARK}/docker.sh ${DATA_FILE}"
+    ./${SYSTEM}/${BENCHMARK}/docker.sh $DATA_FILE
 done

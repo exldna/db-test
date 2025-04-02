@@ -3,7 +3,7 @@
 DATA_FILE="$1"
 CONTAINER_NAME="bench-postgres"
 
-docker container run -it --name $CONTAINER_NAME -e POSTGRES_HOST_AUTH_METHOD=trust postgres
+docker container run -d --name $CONTAINER_NAME -e POSTGRES_HOST_AUTH_METHOD=trust postgres
 docker cp $(dirname $0)/run.sh $CONTAINER_NAME:/tmp
 docker cp $DATA_FILE $CONTAINER_NAME:/tmp
 
