@@ -1,0 +1,6 @@
+{
+    "system": "PostgreSQL",
+    "query": "insert-bulk",
+    "machine": "droplet, debian-bookworm, 8gb",
+    "runs": []
+}
