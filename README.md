@@ -2,6 +2,7 @@
 
 ## Schema definition
 
+```schema
 User:
     addr: 25-32 String
     txs: [Transaction]
@@ -18,3 +19,4 @@ Queries:
         inserts a lot of data in the one request
     - select nth: User.addr, n -> [N; Transaction]
         returns nth block of user transactions
+```
