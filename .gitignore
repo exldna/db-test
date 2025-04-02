@@ -1,0 +1,2 @@
+# do not upload generated files
+/data/*.csv
