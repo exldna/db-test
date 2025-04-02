@@ -35,3 +35,19 @@ $ generate_data --help
 # example usage
 $ generate_data ./data 1000 2000 3000
 ```
+
+## How to run benchmark
+
+Every bench folder contains:
+- `run.sh` file, that runs benchmark once on the fresh machine 
+    with preinstalled database management system.
+- `results` folder, that contains preivous bench results.
+
+So, the easiest way to run the bench is to following this steps:
+1) Start and run fresh docker container.
+2) Copy `run.sh` file and `data` folder into the container.
+3) Run the shell script.
+4) Save results if intended.
+
+If you looking for automated way to run benchmakrs,
+please wisit the `README.md` in the main branch.
