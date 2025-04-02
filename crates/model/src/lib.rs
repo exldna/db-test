@@ -1,13 +1,15 @@
 pub mod bulk_data;
 pub mod temp;
 
-fn out_dir_path() -> Box<std::path::Path> {
+pub fn out_dir_path() -> Box<std::path::Path> {
     let out_dir = env!("OUT_DIR");
     std::path::Path::new(out_dir).into()
 }
 
-pub fn generate_data(qualties: impl Iterator<Item = usize>) -> anyhow::Result<()> {
-    let out_dir = out_dir_path();
+pub fn generate_data(
+    out_dir: &std::path::Path, 
+    qualties: impl Iterator<Item = usize>
+) -> anyhow::Result<()> {
     for quality in qualties {
         let file_name = format!("data_{}.csv", quality);
         let file_path = out_dir.join(file_name.as_str());
