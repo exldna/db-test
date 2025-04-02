@@ -1,0 +1,28 @@
+{
+    "system": "Redis",
+    "query": "insert-bulk",
+    "machine": "droplet, debian-bookworm, 8gb",
+    "runs": [
+        {
+            "date": "02.04.2025",
+            "data_size": "10000000",
+            "results": [
+                [
+                    65.336,
+                    7.491,
+                    10.760
+                ],
+                [
+                    68.368,
+                    7.837,
+                    10.808
+                ],
+                [
+                    65.872,
+                    7.683,
+                    9.916
+                ]
+            ]
+        }
+    ]
+}
