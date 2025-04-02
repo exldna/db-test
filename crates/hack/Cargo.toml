@@ -16,6 +16,8 @@ publish = false
 ### BEGIN HAKARI SECTION
 [dependencies]
 base64 = { version = "0.22" }
+clap = { version = "4", features = ["derive"] }
+clap_builder = { version = "4", default-features = false, features = ["color", "help", "std", "suggestions", "usage"] }
 crossbeam-utils = { version = "0.8" }
 crypto-common = { version = "0.1", default-features = false, features = ["std"] }
 digest = { version = "0.10", features = ["mac", "std"] }
@@ -39,6 +41,8 @@ tokio-stream = { version = "0.1", features = ["fs", "net"] }
 
 [build-dependencies]
 base64 = { version = "0.22" }
+clap = { version = "4", features = ["derive"] }
+clap_builder = { version = "4", default-features = false, features = ["color", "help", "std", "suggestions", "usage"] }
 crossbeam-utils = { version = "0.8" }
 crypto-common = { version = "0.1", default-features = false, features = ["std"] }
 digest = { version = "0.10", features = ["mac", "std"] }
