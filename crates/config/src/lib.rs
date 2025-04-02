@@ -1,9 +1,9 @@
 mod serde_duration;
 
-pub fn get_config_path() -> std::path::PathBuf {
-    let config_path = env!("CONFIG_FILE_PATH");
-    std::path::PathBuf::from(config_path)
-}
+// pub fn get_config_path() -> std::path::PathBuf {
+//     let config_path = env!("CONFIG_FILE_PATH");
+//     std::path::PathBuf::from(config_path)
+// }
 
 #[derive(Clone, Debug, serde::Deserialize)]
 pub struct Config {
@@ -13,9 +13,9 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn try_read() -> anyhow::Result<Self> {
-        Config::from_file(env!("CONFIG_FILE"))
-    }
+    // pub fn try_read() -> anyhow::Result<Self> {
+    //     Config::from_file(env!("CONFIG_FILE"))
+    // }
 
     pub fn from_file(config_file: &str) -> anyhow::Result<Self> {
         let settings = config::Config::builder()
@@ -58,23 +58,23 @@ pub struct BenchConfig {
     pub warm_up_time: std::time::Duration,
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::{Config, get_config_path};
+// #[cfg(test)]
+// mod tests {
+//     use crate::{Config, get_config_path};
 
-    #[test]
-    fn try_read_config() -> anyhow::Result<()> {
-        // copy config
-        let config_path = get_config_path();
-        std::fs::copy(config_path, env!("CONFIG_FILE"))?;
+//     #[test]
+//     fn try_read_config() -> anyhow::Result<()> {
+//         // copy config
+//         let config_path = get_config_path();
+//         std::fs::copy(config_path, env!("CONFIG_FILE"))?;
 
-        // try read config
-        let config = Config::try_read()?;
-        println!("{config:?}");
+//         // try read config
+//         let config = Config::try_read()?;
+//         println!("{config:?}");
 
-        // clear up tmp files
-        std::fs::remove_file(env!("CONFIG_FILE"))?;
+//         // clear up tmp files
+//         std::fs::remove_file(env!("CONFIG_FILE"))?;
 
-        Ok(())
-    }
-}
+//         Ok(())
+//     }
+// }

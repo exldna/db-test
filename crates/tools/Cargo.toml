@@ -1,0 +1,13 @@
+[package]
+name = "db-test-tools"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+hack.workspace = true
+db-test-model.workspace = true
+anyhow.workspace = true
+
+[dependencies.clap]
+version = "4.5.35"
+features = ["derive"]

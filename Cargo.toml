@@ -6,6 +6,7 @@ members = [
     "crates/compare",
     "crates/model",
     "crates/config",
+    "crates/tools",
 ]
 
 [workspace.package]
