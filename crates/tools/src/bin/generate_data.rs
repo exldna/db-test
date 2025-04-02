@@ -2,10 +2,10 @@ use clap::Parser;
 
 fn main() -> anyhow::Result<()> {
     let config = Config::parse();
-    let out_dir = &config.out_dir;
+    let data_dir = &config.data_dir;
     let qualities = config.qualities.iter().copied();
-    std::fs::create_dir_all(out_dir)?;
-    db_test_model::generate_data(out_dir, qualities)?;
+    std::fs::create_dir_all(data_dir)?;
+    db_test_model::generate_data(data_dir, qualities)?;
     Ok(())
 }
 
@@ -13,7 +13,7 @@ fn main() -> anyhow::Result<()> {
 #[command()]
 struct Config {
     #[arg()]
-    out_dir: Box<std::path::Path>,
+    data_dir: Box<std::path::Path>,
     #[arg()]
     qualities: Vec<usize>,
 }
