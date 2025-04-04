@@ -21,7 +21,15 @@ measure() {
     date +%s.%N | awk -v start=$start '{printf "%.3f", ($0-start)*1000}'
 }
 
-redis-cli --scan --type zset | while read -r key; do
+get_zset_keys() {
+    redis-cli --scan | while read -r key; do
+        if [ "$(redis-cli TYPE "$key")" = "zset" ]; then
+            echo "$key"
+        fi
+    done
+}
+
+get_zset_keys | while read -r key; do
     total=$(redis-cli ZCARD "$key")
     batches=$(( (total + BATCH_SIZE - 1) / BATCH_SIZE ))
     completed=0
