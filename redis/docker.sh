@@ -15,4 +15,5 @@ docker cp $BENCH_DIR/run.sh $CONTAINER_NAME:/tmp
 
 docker exec -i $CONTAINER_NAME /tmp/benchmark.sh /tmp/items
 
+docker stop $CONTAINER_NAME
 docker rm $CONTAINER_NAME
