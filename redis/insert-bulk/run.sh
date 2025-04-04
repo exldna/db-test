@@ -1,5 +1,5 @@
 #!/bin/bash
 
-resp_file=$1
+DATA_FILE="$1"
 
-time ( cat ${resp_file} | redis-cli --pipe )
+time ( cat $DATA_FILE | redis-cli --pipe )
