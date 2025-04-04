@@ -2,11 +2,6 @@
 
 DATA_FILE="$1"
 
-until pg_isready -h localhost -p 5432; do
-    echo "Waiting for PostgreSQL to start..."
-    sleep 1
-done
-
 psql -U postgres -t -c "create database test"
 
 psql -U postgres -d test -t -c " \
