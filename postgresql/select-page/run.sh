@@ -1,27 +1,20 @@
 #!/bin/bash
 
 # Configuration
-readonly DB_NAME="test"
-readonly DB_USER="postgres"
-readonly DB_HOST="localhost"
-readonly DB_PORT="5432"
+DB_NAME="test"
+DB_USER="postgres"
+DB_HOST="localhost"
+DB_PORT="5432"
 
-readonly OUTPUT_FILE="results.csv"
-readonly TOP_USERS_LIMIT=100
+OUTPUT_FILE="results.csv"
+TOP_USERS_LIMIT=10000
+BATCH_SIZE=100
 
-main() {
-    initialize_output_file
-    local top_users=$(get_top_users)
-    benchmark_users_sequential_read "$top_users"
-    echo "Benchmark completed. Results saved to $OUTPUT_FILE"
-}
-
-initialize_output_file() {
-    echo "user_address,transaction_count,read_all_time_ms" > "$OUTPUT_FILE"
+initialize_benchmark() {
+    echo "user_address,transaction_count,batch_number,batch_size,batch_read_time_ms" > "$OUTPUT_FILE"
 }
 
 get_top_users() {
-    echo "Identifying top $TOP_USERS_LIMIT users by transaction count..."
     local query="
         SELECT user_address, count(*) AS transaction_count
         FROM user_transactions
@@ -32,51 +25,69 @@ get_top_users() {
     execute_sql_query "$query"
 }
 
-benchmark_users_sequential_read() {
-    local users="$1"
-    while IFS='|' read -r user_address transaction_count; do
-        user_address=$(trim "$user_address")
-        transaction_count=$(trim "$transaction_count")
-        [ -z "$user_address" ] && continue
-        
-        measure_sequential_read "$user_address" "$transaction_count"
-    done <<< "$users"
-}
-
-measure_sequential_read() {
+process_user() {
     local user_address="$1"
     local transaction_count="$2"
     
-    echo "Benchmarking sequential read for user: $user_address with $transaction_count transactions..."
+    local total_batches=$(( (transaction_count + BATCH_SIZE - 1) / BATCH_SIZE ))
+    
+    for ((batch_num=1; batch_num<=total_batches; batch_num++)); do
+        process_single_batch "$user_address" "$transaction_count" "$batch_num"
+    done
+}
+
+process_single_batch() {
+    local user_address="$1"
+    local transaction_count="$2"
+    local batch_num="$3"
+    
+    local offset=$(( (batch_num - 1) * BATCH_SIZE ))
+    local limit=$(( batch_num < total_batches ? BATCH_SIZE : transaction_count % BATCH_SIZE ))
+    [ $limit -eq 0 ] && limit=$BATCH_SIZE
     
     local query="
         SELECT transaction_timestamp
-        FROM user_transactions
-        WHERE user_address = '$user_address'
-        ORDER BY transaction_timestamp ASC;"
+        FROM (
+            SELECT transaction_timestamp,
+                ROW_NUMBER() OVER (ORDER BY transaction_timestamp ASC) as rn
+            FROM user_transactions
+            WHERE user_address = '$user_address'
+        ) sub
+        WHERE rn > $offset AND rn <= $((offset + limit));"
     
     local start_time=$(date +%s%3N)
     execute_sql_query "$query" >/dev/null
     local end_time=$(date +%s%3N)
-    local execution_time=$((end_time - start_time))
     
-    save_results "$user_address" "$transaction_count" "$execution_time"
+    save_result "$user_address" "$transaction_count" "$batch_num" "$limit" "$((end_time - start_time))"
 }
 
 execute_sql_query() {
     psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$1" -q -t -A -F'|'
 }
 
-trim() {
+save_result() {
+    echo "$1,$2,$3,$4,$5" >> "$OUTPUT_FILE"
+}
+
+trim_whitespace() {
     local str="$1"
-    str="${str#"${str%%[![:space:]]*}"}"  # Remove leading whitespace
-    str="${str%"${str##*[![:space:]]}"}"  # Remove trailing whitespace
-    echo "$str"
+    echo "$str" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
-save_results() {
-    printf '"%s",%d,%d\n' "$1" "$2" "$3" >> "$OUTPUT_FILE"
+main() {
+    initialize_benchmark
+    local users=$(get_top_users)
+    
+    while IFS='|' read -r user_address transaction_count; do
+        user_address=$(trim_whitespace "$user_address")
+        transaction_count=$(trim_whitespace "$transaction_count")
+        [ -z "$user_address" ] && continue
+        
+        process_user "$user_address" "$transaction_count"
+    done <<< "$users"
+    
+    echo "Benchmark completed. Results saved to $OUTPUT_FILE"
 }
 
-# Run main function
 main

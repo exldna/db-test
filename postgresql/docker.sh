@@ -17,10 +17,10 @@ docker cp "${BENCH_DIR}/run.sh" $CONTAINER_NAME:/tmp
 docker exec -i $CONTAINER_NAME /tmp/benchmark.sh /tmp/$(basename $DATA_FILE)
 
 if [ -n "$RESULT_FILE" ]; then
-    docker cp "$CONTAINER_NAME:/tmp/$RESULT_FILE" /tmp
+    docker cp "$CONTAINER_NAME:$RESULT_FILE" .
 fi
 
-docker cp "$CONTAINER_NAME:/tmp/log.txt" /tmp
+docker cp "$CONTAINER_NAME:log.txt" .
 
-# docker stop $CONTAINER_NAME
-# docker rm $CONTAINER_NAME
+docker stop $CONTAINER_NAME
+docker rm $CONTAINER_NAME
