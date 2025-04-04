@@ -1,9 +1,8 @@
 #!/bin/bash
 set -eo pipefail
 
-BATCH_SIZE=10
+BATCH_SIZE=100
 
-# Функция для подсчета общего количества батчей
 count_total_batches() {
     local total=0
     while read -r key; do
@@ -16,7 +15,6 @@ count_total_batches() {
     echo $total
 }
 
-# Функция прогресс-бара
 show_progress() {
     local current=$1
     local total=$2
@@ -29,34 +27,28 @@ show_progress() {
     printf "] %3d%% (%d/%d)" $percent $current $total >&2
 }
 
-# Функция измерения времени
 measure() {
     local start=$(date +%s.%N)
     redis-cli ZRANGE "$1" $2 $(( $2 + BATCH_SIZE - 1 )) >/dev/null
     date +%s.%N | awk -v start=$start '{printf "%.3f", ($0-start)*1000}'
 }
 
-# Подсчет общего количества батчей
 TOTAL_BATCHES=$(count_total_batches)
 CURRENT_BATCH=0
 
 echo "Total batches to process: $TOTAL_BATCHES" >&2
 
-# Основной цикл
 redis-cli --scan | while read -r key; do
     [ "$(redis-cli TYPE "$key")" = "zset" ] || continue
     
     total=$(redis-cli ZCARD "$key")
     for ((offset=0; offset<total; offset+=BATCH_SIZE)); do
-        # Вывод данных
         time_ms=$(measure "$key" $offset)
         echo "$key $total $offset $time_ms"
-        
-        # Обновление прогресса
+
         CURRENT_BATCH=$((CURRENT_BATCH + 1))
         show_progress $CURRENT_BATCH $TOTAL_BATCHES >&2
     done
 done
 
-# Очистка строки прогресса
 printf "\nDone!\n" >&2
