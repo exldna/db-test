@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-readonly DB_NAME="postgres"
-readonly DB_USER="test"
+readonly DB_NAME="test"
+readonly DB_USER="postgres"
 readonly DB_HOST="localhost"
 readonly DB_PORT="5432"
 

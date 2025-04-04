@@ -25,12 +25,4 @@ psql -U postgres -d test -c " \
     FROM '${DATA_FILE}' \
     WITH (FORMAT csv);"
 
-psql -U postgres -d test -c " \
-    CREATE INDEX IF NOT EXISTS idx_user_transactions_address \
-    ON user_transactions(user_address);"
-
-psql -U postgres -d test -c " \
-    CREATE INDEX IF NOT EXISTS idx_user_transactions_timestamp \
-    ON user_transactions(transaction_timestamp);"
-
 $(dirname $0)/run.sh |& tee log.txt
