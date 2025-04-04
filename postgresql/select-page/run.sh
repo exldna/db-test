@@ -25,14 +25,11 @@ create_output_file() {
 identify_top_users() {
     echo "Identifying top $NUM_USERS_TO_TEST users by transaction count..."
     local query="
-    SELECT user_address, transaction_count 
-    FROM (
-        SELECT user_address, count(*) AS transaction_count
-        FROM user_transactions
-        GROUP BY user_address
-        ORDER BY transaction_count DESC
-        LIMIT $NUM_USERS_TO_TEST
-    ) t;"
+    SELECT user_address, count(*) AS transaction_count
+    FROM user_transactions
+    GROUP BY user_address
+    ORDER BY transaction_count DESC
+    LIMIT $NUM_USERS_TO_TEST;"
     
     execute_query "$query"
 }
@@ -65,7 +62,8 @@ benchmark_single_user() {
         echo "  Iteration $i: $query_time ms"
     done
     
-    record_results "$user_address" "$transaction_count" "$((total_time / NUM_ITERATIONS))" "$min_time" "$max_time"
+    local avg_time=$((total_time / NUM_ITERATIONS))
+    record_results "$user_address" "$transaction_count" "$avg_time" "$min_time" "$max_time"
 }
 
 benchmark_single_iteration() {
@@ -73,7 +71,10 @@ benchmark_single_iteration() {
     local transaction_count="$2"
     
     local offset=$(calculate_random_offset "$transaction_count")
-    local query="
+    local end_pos=$((offset + BATCH_SIZE))
+    
+    # Формируем запрос с правильными параметрами
+    local query=$(cat <<EOF
     SELECT transaction_timestamp
     FROM (
         SELECT transaction_timestamp,
@@ -81,7 +82,9 @@ benchmark_single_iteration() {
         FROM user_transactions
         WHERE user_address = '$user_address'
     ) sub
-    WHERE rn >= $offset AND rn < $((offset + BATCH_SIZE));"
+    WHERE rn >= $offset AND rn < $end_pos;
+EOF
+    )
     
     execute_query_with_timing "$query"
 }
@@ -104,7 +107,13 @@ execute_query_with_timing() {
 }
 
 record_results() {
-    echo "\"$1\",$2,$3,$4,$5" >> "$OUTPUT_FILE"
+    local user_address="$1"
+    local transaction_count="$2"
+    local avg_time="$3"
+    local min_time="$4"
+    local max_time="$5"
+    
+    echo "\"$user_address\",$transaction_count,$avg_time,$min_time,$max_time" >> "$OUTPUT_FILE"
 }
 
 run_benchmark
