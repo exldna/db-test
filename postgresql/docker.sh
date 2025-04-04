@@ -22,5 +22,5 @@ fi
 
 docker cp "$CONTAINER_NAME:/tmp/log.txt" /tmp
 
-docker stop $CONTAINER_NAME
-docker rm $CONTAINER_NAME
+# docker stop $CONTAINER_NAME
+# docker rm $CONTAINER_NAME
