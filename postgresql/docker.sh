@@ -2,6 +2,7 @@
 
 BENCHMARK="$1"
 DATA_FILE="$2"
+RESULT_FILE="$3"
 
 CONTAINER_NAME="bench-postgres"
 BENCH_DIR="$(dirname $0)/${BENCHMARK}"
@@ -14,6 +15,12 @@ docker cp "${BENCH_DIR}/benchmark.sh" $CONTAINER_NAME:/tmp
 docker cp "${BENCH_DIR}/run.sh" $CONTAINER_NAME:/tmp
 
 docker exec -i $CONTAINER_NAME /tmp/benchmark.sh /tmp/$(basename $DATA_FILE)
+
+if [ -n "$RESULT_FILE" ]; then
+    docker cp "$CONTAINER_NAME:/tmp/$RESULT_FILE" /tmp
+else
+
+docker cp "$CONTAINER_NAME:/tmp/log.txt" /tmp
 
 docker stop $CONTAINER_NAME
 docker rm $CONTAINER_NAME
