@@ -8,7 +8,7 @@ readonly DB_PORT="5432"
 
 readonly BATCH_SIZE=100
 readonly NUM_ITERATIONS=5
-readonly NUM_USERS_TO_TEST=3
+readonly NUM_USERS_TO_TEST=100
 readonly OUTPUT_FILE="results.csv"
 
 main() {

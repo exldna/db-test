@@ -18,7 +18,7 @@ docker exec -i $CONTAINER_NAME /tmp/benchmark.sh /tmp/$(basename $DATA_FILE)
 
 if [ -n "$RESULT_FILE" ]; then
     docker cp "$CONTAINER_NAME:/tmp/$RESULT_FILE" /tmp
-else
+fi
 
 docker cp "$CONTAINER_NAME:/tmp/log.txt" /tmp
 
