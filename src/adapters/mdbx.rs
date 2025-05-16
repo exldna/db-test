@@ -16,9 +16,18 @@ impl Collection for MdbxTable {
         let dir = tempfile::tempdir().unwrap();
         let db = Database::open(&dir).unwrap();
 
-        let txn = db.begin_rw_txn().unwrap();
-        let table = txn.create_table(None, TableFlags::DUP_SORT).unwrap();
-        txn.commit().unwrap();
+        let geometry = Geometry {
+            size: Some(0..(capacity * 16).next_power_of_two()),
+            growth_step: Some(1024 * 1024),
+            shrink_threshold: None,
+            page_size: Some(PageSize::Set(4096)),
+        };
+
+        let db = Database::new()
+            .set_geometry(geometry)
+            .set_sync_mode(SyncMode::Durable)
+            .open(dir.path())
+            .unwrap();
 
         Self(Arc::new(db))
     }
@@ -35,17 +44,16 @@ impl CollectionHandle for MdbxTable {
         let txn = self.0.begin_ro_txn().unwrap();
         let table = txn.open_table(None).unwrap();
 
-        tx.get::<Vec<u8>>(&table, key.as_bytes()).unwrap().is_some()
+        txn.get::<Vec<u8>>(&table, key.as_bytes()).unwrap().is_some()
     }
 
     fn insert(&mut self, key: &Self::Key) -> bool {
         let txn = self.0.begin_rw_txn().unwrap();
         let table = txn.open_table(None).unwrap();
 
-        txn.put(&table, key.as_bytes(), VALUE_DATA, WriteFlags::empty());
+        let result = txn.put(&table, key.as_bytes(), VALUE_DATA, WriteFlags::empty());
         txn.commit().unwrap();
-
-        true
+        result.is_ok()
     }
 
     fn remove(&mut self, _key: &Self::Key) -> bool {
