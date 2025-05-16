@@ -13,7 +13,7 @@ impl Collection for MdbxTable {
     type Handle = Self;
 
     fn with_capacity(_: usize) -> Self {
-        let dir = tempdir().unwrap();
+        let dir = tempfile::tempdir().unwrap();
         let db = Database::open(&dir).unwrap();
         Self(Arc::new(db))
     }
@@ -28,23 +28,29 @@ impl CollectionHandle for MdbxTable {
 
     fn get(&mut self, key: &Self::Key) -> bool {
         let tx = self.0.begin_ro_txn().unwrap();
-        let table = tx.open_table(None);
+        let table = tx.open_table(None).unwrap();
 
-        tx.get(table, key.as_bytes()).unwrap().is_some()
+        tx.get(&table, key).unwrap().is_some()
     }
 
     fn insert(&mut self, key: &Self::Key) -> bool {
         let tx = self.0.begin_rw_txn().unwrap();
-        let table = tx.open_table(None);
+        let table = tx.open_table(None).unwrap();
 
-        tx.put(table, key, VALUE_DATA, WriteFlags::NO_OVERWRITE);
+        let result = tx.put(&table, key, VALUE_DATA, WriteFlags::NO_OVERWRITE);
+
+        match result {
+            Ok(()) => true,
+            Err(Error::KeyExist) => false,
+            _ => panic!()
+        }
     }
 
-    fn remove(&mut self, key: &Self::Key) -> bool {
+    fn remove(&mut self, _key: &Self::Key) -> bool {
         unreachable!()
     }
 
-    fn update(&mut self, key: &Self::Key) -> bool {
+    fn update(&mut self, _key: &Self::Key) -> bool {
         unreachable!()
     }
 }
