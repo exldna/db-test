@@ -13,5 +13,5 @@ impl UserAddress {
     }
 }
 
-pub const VALUE_DATA: &'static [u8] = 
+pub const VALUE_DATA: &'static [u8] =
     b"3c26012ed49b73fd4cdf32e561f7c3f9088d02ea37a44d23485088385a7e463b";

@@ -60,7 +60,7 @@ where
         let m = workloads::create(options, *n).run_silently::<C>();
         handler(name, *n, &m);
     }
-    
+
     println!();
 }
 
