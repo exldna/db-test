@@ -30,7 +30,7 @@ impl CollectionHandle for MdbxTable {
         let tx = self.0.begin_ro_txn().unwrap();
         let table = tx.open_table(None).unwrap();
 
-        tx.get(&table, key.as_bytes()).unwrap().is_some()
+        tx.get::<Vec<u8>>(&table, key.as_bytes()).unwrap().is_some()
     }
 
     fn insert(&mut self, key: &Self::Key) -> bool {
