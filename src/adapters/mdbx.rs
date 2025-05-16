@@ -7,15 +7,14 @@ use crate::model::*;
 
 type Database = libmdbx::Database<NoWriteMap>;
 
-impl std::fmt::Debug for Database {
+pub struct MdbxTable(Arc<Database>);
+
+impl std::fmt::Debug for MdbxTable {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "libmdbx::Database");
+        write!(f, "MdbxTable");
         Ok(())
     }
 }
-
-#[derive(Debug)]
-pub struct MdbxTable(Arc<Database>);
 
 impl Collection for MdbxTable {
     type Handle = Self;
