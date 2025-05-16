@@ -16,7 +16,6 @@ impl FromStr for WorkloadKind {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ReadHeavy" => Ok(Self::ReadHeavy),
-            "Exchange" => Ok(Self::Exchange),
             "RapidGrow" => Ok(Self::RapidGrow),
             _ => Err("unknown workload"),
         }
