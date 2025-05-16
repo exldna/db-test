@@ -30,14 +30,14 @@ impl CollectionHandle for MdbxTable {
         let tx = self.0.begin_ro_txn().unwrap();
         let table = tx.open_table(None).unwrap();
 
-        tx.get(&table, key).unwrap().is_some()
+        tx.get(&table, key.as_bytes()).unwrap().is_some()
     }
 
     fn insert(&mut self, key: &Self::Key) -> bool {
         let tx = self.0.begin_rw_txn().unwrap();
         let table = tx.open_table(None).unwrap();
 
-        let result = tx.put(&table, key, VALUE_DATA, WriteFlags::NO_OVERWRITE);
+        let result = tx.put(&table, key.as_bytes(), VALUE_DATA, WriteFlags::NO_OVERWRITE);
 
         match result {
             Ok(()) => true,

@@ -7,8 +7,8 @@ impl From<u64> for UserAddress {
     }
 }
 
-impl AsRef<[u8]> for UserAddress {
-    fn as_ref(&self) -> &[u8] {
+impl UserAddress {
+    pub fn as_bytes(&self) -> &[u8] {
         self.0.as_bytes()
     }
 }
