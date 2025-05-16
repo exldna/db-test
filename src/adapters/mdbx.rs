@@ -63,6 +63,8 @@ impl Collection for MdbxTable {
         }
         txn.commit().unwrap();
 
+        println!("checks done");
+
         Self(Arc::new(db))
     }
 
