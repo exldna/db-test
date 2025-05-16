@@ -160,6 +160,7 @@ dependencies = [
  "serde",
  "structopt",
  "tempfile",
+ "tracing",
  "tracing-subscriber",
 ]
 
