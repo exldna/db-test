@@ -38,6 +38,7 @@ impl CollectionHandle for MdbxTable {
         let table = tx.open_table(None).unwrap();
 
         let result = tx.put(&table, key.as_bytes(), VALUE_DATA, WriteFlags::NO_OVERWRITE);
+        tx.commit().unwrap();
 
         match result {
             Ok(()) => true,
