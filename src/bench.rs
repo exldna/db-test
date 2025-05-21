@@ -28,7 +28,7 @@ where
     C: Collection,
     <C::Handle as CollectionHandle>::Key: Send + Debug,
 {
-    if options.skip.iter().find(|s| s == &name).is_some() {
+    if options.skip.iter().any(|s| s == name) {
         println!("-- {} [skipped]", name);
         return;
     } else {

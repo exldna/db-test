@@ -16,21 +16,12 @@ impl Collection for MdbxTable {
     type Handle = MdbxHandle;
 
     fn with_capacity(_: usize) -> Self {
-        let tempdir = tempfile::tempdir().unwrap();
+        let tempdir = tempfile::Builder::new()
+            .prefix("bench-mdbx")
+            .tempdir()
+            .unwrap();
+
         let database = Database::open(&tempdir).unwrap();
-
-        // let geometry = Geometry {
-        //     size: Some(0..(capacity * 16).next_power_of_two()),
-        //     growth_step: Some(1024 * 1024),
-        //     shrink_threshold: None,
-        //     page_size: Some(PageSize::Set(4096)),
-        // };
-
-        // let db = Database::open_with_options()
-        //     .set_geometry(geometry)
-        //     .set_sync_mode(SyncMode::Durable)
-        //     .open(dir.path())
-        //     .unwrap();
 
         Self {
             database: Arc::new(database),
@@ -46,21 +37,19 @@ impl Collection for MdbxTable {
 impl CollectionHandle for MdbxHandle {
     type Key = UserAddress;
 
-    fn get(&mut self, key: &Self::Key) -> bool {
+    fn get(&mut self, key: &Self::Key) {
         let txn = self.0.begin_ro_txn().unwrap();
         let table = txn.open_table(None).unwrap();
 
-        txn.get::<Vec<u8>>(&table, key.as_bytes())
-            .unwrap()
-            .is_some()
+        txn.get::<Vec<u8>>(&table, key.as_bytes()).unwrap();
     }
 
-    fn insert(&mut self, key: &Self::Key) -> bool {
+    fn insert(&mut self, key: &Self::Key) {
         let txn = self.0.begin_rw_txn().unwrap();
         let table = txn.open_table(None).unwrap();
 
-        let result = txn.put(&table, key.as_bytes(), VALUE_DATA, WriteFlags::empty());
+        txn.put(&table, key.as_bytes(), VALUE_DATA, WriteFlags::empty())
+            .unwrap();
         txn.commit().unwrap();
-        result.is_ok()
     }
 }

@@ -3,147 +3,76 @@ use std::{sync::Arc, sync::Barrier, time::Duration};
 use rand::prelude::*;
 use tracing::{debug, info, info_span};
 
-/// A workload mix configuration.
-///
-/// The sum of the fields must add to 100.
 #[derive(Clone, Copy, Debug)]
 pub struct Mix {
-    /// The percentage of operations in the mix that are reads.
     pub read: u8,
-    /// The percentage of operations in the mix that are inserts.
     pub insert: u8,
 }
 
-/// A benchmark workload builder.
 #[derive(Clone, Copy, Debug)]
 pub struct Workload {
-    /// The mix of operations to run.
     mix: Mix,
-
-    /// The initial capacity of the table, specified as a power of 2.
     initial_cap_log2: u8,
-
-    /// The fraction of the initial table capacity should we populate before running the benchmark.
-    prefill_f: f64,
-
-    /// Total number of operations as a multiple of the initial capacity.
-    ops_f: f64,
-
-    /// Number of threads to run the benchmark with.
+    prefill: f64,
+    operations: f64,
     threads: usize,
-
-    /// Random seed to randomize the workload.
-    ///
-    /// If `None`, the seed is picked randomly.
-    /// If `Some`, the workload is deterministic if `threads == 1`.
     seed: Option<[u8; 32]>,
 }
 
-/// A collection that can be benchmarked by bustle.
-///
-/// Any thread that performs operations on the collection will first call `pin` and then perform
-/// collection operations on the `Handle` that is returned. `pin` will not be called in the hot
-/// loop of the benchmark.
 pub trait Collection: Send + Sync + 'static {
-    /// A thread-local handle to the concurrent collection under test.
     type Handle: CollectionHandle;
 
-    /// Allocate a new instance of the benchmark target with the given capacity.
     fn with_capacity(capacity: usize) -> Self;
 
-    /// Pin a thread-local handle to the concurrent collection under test.
     fn pin(&self) -> Self::Handle;
 }
 
-/// A handle to a key-value collection.
-///
-/// Note that for all these methods, the benchmarker does not dictate what the values are. Feel
-/// free to use the same value for all operations, or use distinct ones and check that your
-/// retrievals indeed return the right results.
 pub trait CollectionHandle {
-    /// The `u64` seeds used to construct `Key` (through `From<u64>`) are distinct.
-    /// The returned keys must be as well.
     type Key: From<u64>;
 
-    /// Perform a lookup for `key`.
-    ///
-    /// Should return `true` if the key is found.
-    fn get(&mut self, key: &Self::Key) -> bool;
+    fn get(&mut self, key: &Self::Key);
 
-    /// Insert `key` into the collection.
-    ///
-    /// Should return `true` if no value previously existed for the key.
-    fn insert(&mut self, key: &Self::Key) -> bool;
+    fn insert(&mut self, key: &Self::Key);
 }
 
-/// Information about a measurement.
 #[derive(Debug, Clone)]
 pub struct Measurement {
-    /// A total number of operations.
     pub total_ops: u64,
-    /// Spent time.
     pub spent: Duration,
-    /// A number of operations per second.
     pub throughput: f64,
-    /// An average value of latency.
     pub latency: Duration,
 }
 
 impl Workload {
-    /// Start building a new benchmark workload.
     pub fn new(threads: usize, mix: Mix) -> Self {
         Self {
             mix,
             initial_cap_log2: 25,
-            prefill_f: 0.0,
-            ops_f: 0.75,
+            prefill: 0.0,
+            operations: 0.75,
             threads,
             seed: None,
         }
     }
 
-    /// Set the initial capacity for the map.
-    ///
-    /// Note that the capacity will be `2^` the given capacity!
-    ///
-    /// The number of operations and the number of pre-filled keys are determined based on the
-    /// computed initial capacity, so keep that in mind if you change this parameter.
-    ///
-    /// Defaults to 25 (so `2^25 ~= 34M`).
     pub fn initial_capacity_log2(&mut self, capacity: u8) -> &mut Self {
         self.initial_cap_log2 = capacity;
         self
     }
 
-    /// Set the fraction of the initial table capacity we should populate before running the
-    /// benchmark.
-    ///
-    /// Defaults to 0%.
     pub fn prefill_fraction(&mut self, fraction: f64) -> &mut Self {
         assert!(fraction >= 0.0);
         assert!(fraction <= 1.0);
-        self.prefill_f = fraction;
+        self.prefill = fraction;
         self
     }
 
-    /// Set the number of operations to run as a multiple of the initial capacity.
-    ///
-    /// This value can exceed 1.0.
-    ///
-    /// Defaults to 0.75 (75%).
     pub fn operations(&mut self, multiple: f64) -> &mut Self {
         assert!(multiple >= 0.0);
-        self.ops_f = multiple;
+        self.operations = multiple;
         self
     }
 
-    /// Execute this workload against the collection type given by `T`.
-    ///
-    /// The key type must be `Send` since we generate the keys on a different thread than the one
-    /// we do the benchmarks on.
-    ///
-    /// The key type must be `Debug` so that we can print meaningful errors if an assertion is
-    /// violated during the benchmark.
     #[allow(clippy::cognitive_complexity)]
     pub fn run_silently<T: Collection>(&self) -> Measurement
     where
@@ -156,7 +85,7 @@ impl Workload {
         );
 
         let initial_capacity = 1 << self.initial_cap_log2;
-        let total_ops = (initial_capacity as f64 * self.ops_f) as usize;
+        let total_ops = (initial_capacity as f64 * self.operations) as usize;
 
         let seed = self.seed.unwrap_or_else(rand::random);
         let mut rng: rand::rngs::SmallRng = rand::SeedableRng::from_seed(seed);
@@ -173,16 +102,11 @@ impl Workload {
         op_mix.shuffle(&mut rng);
 
         info!("generating key space");
-        let prefill = (initial_capacity as f64 * self.prefill_f) as usize;
-        // We won't be running through `op_mix` more than ceil(total_ops / 100), so calculate that
-        // ceiling and multiply by the number of inserts and upserts to get an upper bound on how
-        // many elements we'll be inserting.
-        let max_insert_ops = (total_ops + 99) / 100 * usize::from(self.mix.insert);
+        let prefill = (initial_capacity as f64 * self.prefill) as usize;
+        let max_insert_ops = total_ops.div_ceil(100) * usize::from(self.mix.insert);
         let insert_keys = std::cmp::max(initial_capacity, max_insert_ops) + prefill;
-        // Round this quantity up to a power of 2, so that we can use an LCG to cycle over the
-        // array "randomly".
-        let insert_keys_per_thread =
-            ((insert_keys + self.threads - 1) / self.threads).next_power_of_two();
+        let insert_keys_per_thread = insert_keys.div_ceil(self.threads).next_power_of_two();
+
         let mut generators = Vec::new();
         for _ in 0..self.threads {
             let mut thread_seed = [0u8; 32];
@@ -211,8 +135,7 @@ impl Workload {
             prefillers.push(std::thread::spawn(move || {
                 let mut table = table.pin();
                 for key in &keys[0..prefill_per_thread] {
-                    let inserted = table.insert(key);
-                    assert!(inserted);
+                    table.insert(key);
                 }
                 keys
             }));
@@ -288,7 +211,6 @@ fn mix<H: CollectionHandle>(
     // Invariant: erase_seq <= insert_seq
     // Invariant: insert_seq < num_keys
     let n_keys = keys.len();
-    let erase_seq = 0;
     let mut insert_seq = prefilled;
     let mut find_seq = 0;
 
@@ -307,7 +229,7 @@ fn mix<H: CollectionHandle>(
     });
     workload_scope.wait();
 
-    for (i, op) in (0..((ops + op_mix.len() - 1) / op_mix.len()))
+    for (i, op) in (0..ops.div_ceil(op_mix.len()))
         .flat_map(|_| op_mix.iter())
         .enumerate()
     {
@@ -317,28 +239,11 @@ fn mix<H: CollectionHandle>(
 
         match op {
             Operation::Read => {
-                let should_find = find_seq >= erase_seq && find_seq < insert_seq;
-                let found = tbl.get(&keys[find_seq]);
-                if find_seq >= erase_seq {
-                    assert_eq!(
-                        should_find, found,
-                        "get({:?}) {} {} {}",
-                        &keys[find_seq], find_seq, erase_seq, insert_seq
-                    );
-                } else {
-                    // due to upserts, we may _or may not_ find the key
-                }
-
-                // Twist the LCG since we used find_seq
+                tbl.get(&keys[find_seq]);
                 find_seq = (a * find_seq + c) & find_seq_mask;
             }
             Operation::Insert => {
-                let new_key = tbl.insert(&keys[insert_seq]);
-                assert!(
-                    new_key,
-                    "insert({:?}) should insert a new value",
-                    &keys[insert_seq]
-                );
+                tbl.insert(&keys[insert_seq]);
                 insert_seq += 1;
             }
         }

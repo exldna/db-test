@@ -43,13 +43,11 @@ impl Drop for RocksDbTable {
 impl CollectionHandle for RocksDbHandle {
     type Key = UserAddress;
 
-    fn get(&mut self, key: &Self::Key) -> bool {
-        self.0.get(key.as_bytes()).unwrap().is_some()
+    fn get(&mut self, key: &Self::Key) {
+        self.0.get_pinned(key.as_bytes()).unwrap();
     }
 
-    fn insert(&mut self, key: &Self::Key) -> bool {
-        let ret = !self.get(key);
+    fn insert(&mut self, key: &Self::Key) {
         self.0.put(key.as_bytes(), VALUE_DATA).unwrap();
-        ret
     }
 }
