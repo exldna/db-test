@@ -1,10 +1,9 @@
 use std::fmt::Debug;
 use std::iter;
 
-use bustle::*;
 use structopt::StructOpt;
 
-use crate::{adapters::*, record::Record, workloads};
+use crate::{adapters::*, record::Record, workloads, bustle::*};
 
 #[derive(Debug, StructOpt)]
 pub struct Options {
@@ -65,7 +64,7 @@ where
 }
 
 fn run(options: &Options, h: &mut Handler) {
-    // case::<MdbxTable>("std:sync::Arc<libmdbx::Database>", options, h);
+    case::<MdbxTable>("std:sync::Arc<libmdbx::Database>", options, h);
     case::<RocksDbTable>("std:sync::Arc<rocksdb::DB>", options, h);
 }
 

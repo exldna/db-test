@@ -1,8 +1,7 @@
 use std::{fmt::Debug, str::FromStr};
 
-use bustle::*;
-
-use super::bench::Options;
+use crate::bustle::*;
+use crate::bench::Options;
 
 #[derive(Debug)]
 pub enum WorkloadKind {
@@ -23,12 +22,10 @@ impl FromStr for WorkloadKind {
 }
 
 fn read_heavy(threads: u32) -> Workload {
-    let mix = Mix {
-        read: 99,
-        insert: 1,
-        remove: 0,
-        update: 0,
-        upsert: 0,
+    let mix = Mix{
+            read: 95,
+            insert: 5,
+        
     };
 
     *Workload::new(threads as usize, mix)
@@ -37,12 +34,9 @@ fn read_heavy(threads: u32) -> Workload {
 }
 
 fn rapid_grow(threads: u32) -> Workload {
-    let mix = Mix {
-        read: 5,
-        insert: 95,
-        remove: 0,
-        update: 0,
-        upsert: 0,
+    let mix = Mix{
+        read: 20,
+            insert: 80,
     };
 
     *Workload::new(threads as usize, mix)

@@ -3,7 +3,12 @@
         "libmdbx",
         "mdbx",
         "num_cpus",
+        "prefillers",
+        "rngs",
         "rocksdb",
-        "structopt"
+        "scopeguard",
+        "Seedable",
+        "structopt",
+        "upserts"
     ]
 }

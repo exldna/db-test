@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use bustle::*;
+use crate::bustle::*;
 use libmdbx::*;
 
 use crate::model::*;
@@ -60,13 +60,5 @@ impl CollectionHandle for MdbxHandle {
         let result = txn.put(&table, key.as_bytes(), VALUE_DATA, WriteFlags::empty());
         txn.commit().unwrap();
         result.is_ok()
-    }
-
-    fn remove(&mut self, _key: &Self::Key) -> bool {
-        unreachable!()
-    }
-
-    fn update(&mut self, _key: &Self::Key) -> bool {
-        unreachable!()
     }
 }

@@ -7,6 +7,7 @@ mod bench;
 mod model;
 mod record;
 mod workloads;
+mod bustle;
 
 #[derive(Debug, StructOpt)]
 enum Options {

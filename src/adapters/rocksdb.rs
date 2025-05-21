@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use bustle::*;
+use crate::bustle::*;
 use rocksdb::*;
 
 use crate::model::*;
@@ -48,16 +48,8 @@ impl CollectionHandle for RocksDbHandle {
     }
 
     fn insert(&mut self, key: &Self::Key) -> bool {
-        let ret = self.0.get(key.as_bytes()).unwrap().is_none();
+        let ret = !self.get(key);
         self.0.put(key.as_bytes(), VALUE_DATA).unwrap();
         ret
-    }
-
-    fn remove(&mut self, _key: &Self::Key) -> bool {
-        unimplemented!()
-    }
-
-    fn update(&mut self, _key: &Self::Key) -> bool {
-        unimplemented!()
     }
 }
