@@ -3,7 +3,7 @@ use std::iter;
 
 use structopt::StructOpt;
 
-use crate::{adapters::*, record::Record, workloads, bustle::*};
+use crate::{adapters::*, bustle::*, record::Record, workloads};
 
 #[derive(Debug, StructOpt)]
 pub struct Options {

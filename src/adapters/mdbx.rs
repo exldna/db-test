@@ -5,7 +5,7 @@ use libmdbx::*;
 
 use crate::model::*;
 
-pub struct MdbxTable{
+pub struct MdbxTable {
     database: Arc<Database<NoWriteMap>>,
     _tempdir: tempfile::TempDir,
 }
@@ -33,7 +33,7 @@ impl Collection for MdbxTable {
         //     .unwrap();
 
         Self {
-            database: Arc::new(database), 
+            database: Arc::new(database),
             _tempdir: tempdir,
         }
     }
@@ -50,7 +50,9 @@ impl CollectionHandle for MdbxHandle {
         let txn = self.0.begin_ro_txn().unwrap();
         let table = txn.open_table(None).unwrap();
 
-        txn.get::<Vec<u8>>(&table, key.as_bytes()).unwrap().is_some()
+        txn.get::<Vec<u8>>(&table, key.as_bytes())
+            .unwrap()
+            .is_some()
     }
 
     fn insert(&mut self, key: &Self::Key) -> bool {

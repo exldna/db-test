@@ -4,10 +4,10 @@ use structopt::StructOpt;
 
 mod adapters;
 mod bench;
+mod bustle;
 mod model;
 mod record;
 mod workloads;
-mod bustle;
 
 #[derive(Debug, StructOpt)]
 enum Options {
