@@ -5,39 +5,45 @@ use libmdbx::*;
 
 use crate::model::*;
 
-type Database = libmdbx::Database<NoWriteMap>;
+pub struct MdbxTable{
+    database: Arc<Database<NoWriteMap>>,
+    _tempdir: tempfile::TempDir,
+}
 
-pub struct MdbxTable(Arc<Database>);
+pub struct MdbxHandle(Arc<Database<NoWriteMap>>);
 
 impl Collection for MdbxTable {
-    type Handle = Self;
+    type Handle = MdbxHandle;
 
     fn with_capacity(_: usize) -> Self {
-        let dir = tempfile::tempdir().unwrap();
-        let db = Database::open(&dir).unwrap();
+        let tempdir = tempfile::tempdir().unwrap();
+        let database = Database::open(&tempdir).unwrap();
 
-        let geometry = Geometry {
-            size: Some(0..(capacity * 16).next_power_of_two()),
-            growth_step: Some(1024 * 1024),
-            shrink_threshold: None,
-            page_size: Some(PageSize::Set(4096)),
-        };
+        // let geometry = Geometry {
+        //     size: Some(0..(capacity * 16).next_power_of_two()),
+        //     growth_step: Some(1024 * 1024),
+        //     shrink_threshold: None,
+        //     page_size: Some(PageSize::Set(4096)),
+        // };
 
-        let db = Database::new()
-            .set_geometry(geometry)
-            .set_sync_mode(SyncMode::Durable)
-            .open(dir.path())
-            .unwrap();
+        // let db = Database::open_with_options()
+        //     .set_geometry(geometry)
+        //     .set_sync_mode(SyncMode::Durable)
+        //     .open(dir.path())
+        //     .unwrap();
 
-        Self(Arc::new(db))
+        Self {
+            database: Arc::new(database), 
+            _tempdir: tempdir,
+        }
     }
 
     fn pin(&self) -> Self::Handle {
-        Self(self.0.clone())
+        MdbxHandle(self.database.clone())
     }
 }
 
-impl CollectionHandle for MdbxTable {
+impl CollectionHandle for MdbxHandle {
     type Key = UserAddress;
 
     fn get(&mut self, key: &Self::Key) -> bool {

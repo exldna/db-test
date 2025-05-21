@@ -32,7 +32,7 @@ fn read_heavy(threads: u32) -> Workload {
     };
 
     *Workload::new(threads as usize, mix)
-        .initial_capacity_log2(15)
+        .initial_capacity_log2(25)
         .prefill_fraction(0.75)
 }
 
@@ -46,7 +46,7 @@ fn rapid_grow(threads: u32) -> Workload {
     };
 
     *Workload::new(threads as usize, mix)
-        .initial_capacity_log2(15)
+        .initial_capacity_log2(25)
         .prefill_fraction(0.0)
 }
 

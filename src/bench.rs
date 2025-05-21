@@ -65,7 +65,8 @@ where
 }
 
 fn run(options: &Options, h: &mut Handler) {
-    case::<MdbxTable>("std:sync::Arc<libmdbx::Database>", options, h);
+    // case::<MdbxTable>("std:sync::Arc<libmdbx::Database>", options, h);
+    case::<RocksDbTable>("std:sync::Arc<rocksdb::DB>", options, h);
 }
 
 pub fn bench(options: &Options) {
