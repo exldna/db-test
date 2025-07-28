@@ -1,1 +1,15 @@
-/target
+# Rust build artifacts
+/target/
+
+# Python virtual environment and cache
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Project-specific generated data
+# /data/
+
+# Secrets don't go to public repos
+.secrets.*
