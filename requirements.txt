@@ -1,0 +1,13 @@
+# Configuration Management
+dynaconf==3.2.11
+
+# HTTP Requests
+requests==2.32.4
+
+# Data Processing
+pandas==2.3.1
+pyarrow==21.0.0
+zstandard==0.23.0
+
+# Progress Bars
+tqdm==4.67.1
