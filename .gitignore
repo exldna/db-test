@@ -9,7 +9,7 @@ __pycache__/
 *.pyc
 
 # Project-specific generated data
-# /data/
+/data/
 
 # Secrets don't go to public repos
 .secrets.*
