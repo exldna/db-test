@@ -16,6 +16,21 @@ from .base_client import BaseClient
 from .decorators import retry_on_network_error
 
 
+class _ProgressBarManager:
+    """A thread-safe manager for assigning unique positions to tqdm bars."""
+
+    def __init__(self):
+        self._lock = asyncio.Lock()
+        self._next_position = 0
+
+    async def get_next_position(self) -> int:
+        """Safely gets the next available integer for a progress bar position."""
+        async with self._lock:
+            position = self._next_position
+            self._next_position += 1
+            return position
+
+
 class HttpDownloader(BaseClient, Downloader):
     """A downloader that fetches files via HTTP atomically."""
 
@@ -30,6 +45,7 @@ class HttpDownloader(BaseClient, Downloader):
         super().__init__(client, token)
         self.timeout = timeout
         self.chunk_size = chunk_size
+        self._progress_manager = _ProgressBarManager()
 
     @contextlib.contextmanager
     def _atomic_target(self, destination: Path) -> Generator[Path, None, None]:
@@ -54,12 +70,14 @@ class HttpDownloader(BaseClient, Downloader):
         self,
         stream: AsyncGenerator[int, None],
         total_size: int,
+        position: int,
         desc: str,
     ):
         """Consume the byte stream to update a TQDM progress bar."""
 
         with tqdm(
-            total=total_size, unit="B", unit_scale=True, desc=desc
+            total=total_size, unit="B", unit_scale=True,
+            desc=desc, position=position, leave=False
         ) as progress_bar:
             async for progress in stream:
                 progress_bar.update(progress)
@@ -71,6 +89,7 @@ class HttpDownloader(BaseClient, Downloader):
 
     async def _stream_from_network(self, dump: DumpMeta, target_file: Path):
         """Manage the network request and the streaming process."""
+        position = await self._progress_manager.get_next_position()
         headers = {"Authorization": f"Bearer {self.token}"}
         async with self.client.stream(
             "GET", dump.url, timeout=self.timeout, headers=headers
@@ -78,7 +97,7 @@ class HttpDownloader(BaseClient, Downloader):
             response.raise_for_status()
             stream = self._stream_chunks(response, target_file)
             await self._consume_stream_with_progress(
-                stream, dump.size_bytes, target_file.name
+                stream, dump.size_bytes, position, target_file.name
             )
 
     @retry_on_network_error
