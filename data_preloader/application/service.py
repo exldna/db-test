@@ -11,6 +11,9 @@ import logging
 from pathlib import Path
 from typing import List
 
+from tqdm.contrib.logging import logging_redirect_tqdm
+from tqdm.asyncio import tqdm_asyncio
+
 from .domain import *
 
 logger = logging.getLogger(__name__)
@@ -109,6 +112,11 @@ class PreloaderService:
             f"limit of {self.concurrent_downloads}..."
         )
 
-        await asyncio.gather(*tasks)
+        with logging_redirect_tqdm():
+            await tqdm_asyncio.gather(
+                *tasks, desc="Overall Progress", unit="pipeline"
+            )
+
+        # await asyncio.gather(*tasks)
 
         logger.info("All processing tasks completed.")
