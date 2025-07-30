@@ -1,10 +1,31 @@
+[logging]
+# Possible levels: DEBUG, INFO, WARNING, ERROR, CRITICAL, FATAL
+level = "INFO"
+
 # Common paths for the entire project
 [paths]
-# Directory for caching downloaded archives and
-# storing the final Parquet files.
+# Directory for caching downloaded archives
 raw_data_dir = "data/raw"
 
 # Settings for the data_preloader component
 [preloader]
 # Base URL for the 3xpl.com API
 api_base_url = "https://api.3xpl.com"
+# The number of concurrent downloads to run
+concurrent_downloads = 10
+# Default network timeout in seconds for all HTTP requests
+timeout = 30
+
+[preloader.downloader]
+# The size (in bytes) of chunks for streaming file downloads to disk
+chunk_size = 8192
+
+[preloader.hasher]
+# The size (in bytes) of chunks for reading a local file when calculating its checksum.
+chunk_size = 65536
+
+[preloader.processor]
+# The number of rows to read from the TSV file into memory at a time.
+chunk_size = 1_000_000
+# A list of columns to extract from the source TSV for the final Parquet file.
+required_columns = ["address", "transaction"]
