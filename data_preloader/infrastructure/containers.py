@@ -67,6 +67,7 @@ class Container(containers.DeclarativeContainer):
         downloader=downloader,
         hasher=hasher,
         processor=processor,
-        raw_data_dir=config().paths.raw_data_dir,
         concurrent_downloads=config().preloader.concurrent_downloads,
+        download_cache_dir=config().paths.download_cache_dir,
+        raw_data_dir=config().paths.raw_data_dir,
     )

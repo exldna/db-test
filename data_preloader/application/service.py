@@ -27,6 +27,7 @@ class DumpProcessingPipeline:
         downloader: Downloader,
         hasher: Hasher,
         processor: Processor,
+        download_cache_dir: Path,
         raw_data_dir: Path,
     ):
         """Initializes the pipeline with necessary dependencies (ports)."""
@@ -34,6 +35,7 @@ class DumpProcessingPipeline:
         self.downloader = downloader
         self.hasher = hasher
         self.processor = processor
+        self.download_cache_dir = download_cache_dir
         self.raw_data_dir = raw_data_dir
 
     async def run(self, dump: DumpMeta):
@@ -44,8 +46,9 @@ class DumpProcessingPipeline:
         """
 
         archive_name = dump.url.split("/")[-1]
-        archive_path = self.raw_data_dir / archive_name
-        parquet_path = archive_path.with_suffix(".parquet")
+        archive_path = self.download_cache_dir / archive_name
+        parquet_path = self.raw_data_dir / archive_name
+        parquet_path = parquet_path.with_suffix(".parquet")
 
         self.logger.info(f"Starting pipeline for {archive_name}...")
 
@@ -72,14 +75,19 @@ class PreloaderService:
         downloader: Downloader,
         hasher: Hasher,
         processor: Processor,
-        raw_data_dir: str,
         concurrent_downloads: int,
+        download_cache_dir: Path,
+        raw_data_dir: str,
     ):
         """Initializes the service and the reusable processing pipeline."""
         self.data_source = data_source
         self.concurrent_downloads = concurrent_downloads
         self.pipeline = DumpProcessingPipeline(
-            downloader, hasher, processor, Path(raw_data_dir)
+            downloader,
+            hasher,
+            processor,
+            Path(download_cache_dir),
+            Path(raw_data_dir),
         )
 
     async def _run_pipeline_with_semaphore(

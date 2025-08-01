@@ -4,7 +4,9 @@ level = "INFO"
 
 # Common paths for the entire project
 [paths]
-# Directory for caching downloaded archives
+# Directory for downloaded archives
+download_cache_dir = "data/cache"
+# Directory for raw parquet files
 raw_data_dir = "data/raw"
 
 # Settings for the data_preloader component
@@ -28,4 +30,9 @@ chunk_size = 65536
 # The number of rows to read from the TSV file into memory at a time.
 chunk_size = 1_000_000
 # A list of columns to extract from the source TSV for the final Parquet file.
-required_columns = ["address", "transaction"]
+required_columns = ["address", "transaction", "time"]
+
+# Settings for the bulk_loader component
+[bulk_loader]
+# The number of threads. Set to 0 to use system default (number of CPU cores).
+num_threads = 0
