@@ -20,11 +20,11 @@ impl<S: Sorter, G: SstGenerator> BulkLoaderService<S, G> {
     /// Executes the entire bulk loading pipeline.
     pub fn run(&self) -> anyhow::Result<()> {
         tracing::info!("Starting Stage 1: Sorting");
-        self.sorter.run()?;
+        // self.sorter.run()?;
         tracing::info!("Stage 1: Sorting finished successfully ---");
 
         tracing::info!("Starting Stage 2: SST Generation & Ingestion");
-        self.sst_generator.run()?;
+        // self.sst_generator.run()?;
         tracing::info!("Stage 2: SST Generation & Ingestion finished successfully");
 
         Ok(())

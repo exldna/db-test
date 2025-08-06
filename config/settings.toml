@@ -8,6 +8,12 @@ level = "INFO"
 download_cache_dir = "data/cache"
 # Directory for raw parquet files
 raw_data_dir = "data/raw"
+# Directory for sorted runs.
+sorted_runs_dir = "data/runs"
+# Directory for storing generated sst files.
+sst_files_dir = "data/sst"
+# RocksDB root directory.
+rocks_db_dir = "data/rocks"
 
 # Settings for the data_preloader component
 [preloader]

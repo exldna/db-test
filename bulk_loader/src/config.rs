@@ -28,6 +28,9 @@ pub struct LoggingConfig {
 #[allow(dead_code)]
 pub struct PathsConfig {
     pub raw_data_dir: PathBuf,
+    pub sorted_runs_dir: PathBuf,
+    pub sst_files_dir: PathBuf,
+    pub rocks_db_dir: PathBuf,
 }
 
 #[derive(serde::Deserialize, Debug, Clone)]
